@@ -30,10 +30,6 @@ router.post('/admin', (req, res, next) => {
             username: req.body.username,
             password: req.body.password
         }
-        bcrypt.hash(obj.password, 8).then((encPass) => {
-            console.log("encryptedPass",encPass)
-
-        });
         const query = {username: obj.username}
 
         dbo.collection('LoginDetails').find(query).toArray((err, adminInDB) => {
@@ -49,11 +45,8 @@ router.post('/admin', (req, res, next) => {
                 if (!correctPassword) {
                     res.redirect('/login')
                 }
-                console.log("Password CORRECT, loading jwt====")
-
                 const token = jwt.sign(admin, JWT_SECRET, {expiresIn: '1h'});
                 res.cookie('token', token, {httpOnly: true});
-                console.log("Setting jwt token to cookies")
                 res.redirect('/login/admin/events')
             }
 
@@ -64,8 +57,6 @@ router.post('/admin', (req, res, next) => {
 })
 
 router.get('/admin/events', (req, res, next) => {
-    console.log("Getting admin/events")
-
     const JWT_SECRET = process.env.JWT_SECRET;
     const token = req.cookies.token;
     if (!token) {
@@ -74,7 +65,6 @@ router.get('/admin/events', (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         res.render('clubInfo', {code: 1})
-
     } catch (err) {
         res.redirect('/login')
     }
